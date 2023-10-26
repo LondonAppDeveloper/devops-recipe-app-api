@@ -3,6 +3,7 @@ LABEL maintainer="londonappdeveloper.com"
 
 ENV PYTHONUNBUFFERED 1
 
+ARG UID=101
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 COPY ./scripts /scripts
@@ -23,6 +24,7 @@ RUN python -m venv /py && \
     rm -rf /tmp && \
     apk del .tmp-build-deps && \
     adduser \
+        --uid $UID \
         --disabled-password \
         --no-create-home \
         django-user && \
