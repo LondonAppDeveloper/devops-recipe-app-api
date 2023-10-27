@@ -48,7 +48,7 @@ jobs:
           export TF_VAR_ecr_app_image="${{ vars.ECR_REPO_APP }}:$GITHUB_SHA"
           export TF_VAR_ecr_proxy_image="${{ vars.ECR_REPO_PROXY }}:$GITHUB_SHA"
           workspace=$(cat .workspace)
-          cd tf/
+          cd inra/
           docker compose run --rm terraform -chdir=deploy/ init
           docker compose run --rm terraform -chdir=deploy/ workspace select -or-create $workspace
           docker compose run --rm terraform -chdir=deploy/ apply -auto-approve
