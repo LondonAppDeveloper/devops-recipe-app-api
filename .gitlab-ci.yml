@@ -10,6 +10,7 @@ before_script:
 
 stages:
   - Test and Lint
+  - Build and Push
 
 Python Checks:
   stage: Test and Lint
@@ -31,3 +32,15 @@ Terraform Checks:
     - docker compose run --rm terraform -chdir=deploy/ fmt -check
   rules:
     - if: "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(main|prod)$/ || $CI_COMMIT_BRANCH =~ /^(main|prod)$/"
+
+Push to ECR:
+  stage: Build and Push
+  script:
+    - apk update && apk add aws-cli
+    - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com
+    - docker build --compress -t $ECR_REPO_APP:$CI_COMMIT_SHA .
+    - docker push $ECR_REPO_APP:$CI_COMMIT_SHA
+    - docker build --compress -t $ECR_REPO_PROXY:$CI_COMMIT_SHA .
+    - docker push $ECR_REPO_PROXY:$CI_COMMIT_SHA
+  rules:
+    - if: "$CI_COMMIT_BRANCH =~ /^(main|prod)$/"
