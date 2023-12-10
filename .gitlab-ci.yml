@@ -1,0 +1,20 @@
+---
+image:
+  name: docker:24.0
+
+services:
+  - docker:24.0-dind
+
+before_script:
+  - echo "$DOCKERHUB_TOKEN" | docker login --username $DOCKERHUB_USER --password-stdin
+
+stages:
+  - Test and Lint
+
+Python Checks:
+  stage: Test and Lint
+  script:
+    - docker compose run --rm app sh -c "python manage.py wait_for_db && python manage.py test"
+    - docker compose run --rm app sh -c "flake8"
+  rules:
+    - if: "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(main|prod)$/ || $CI_COMMIT_BRANCH =~ /^(main|prod)$/"
