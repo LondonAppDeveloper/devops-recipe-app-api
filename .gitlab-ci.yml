@@ -18,3 +18,16 @@ Python Checks:
     - docker compose run --rm app sh -c "flake8"
   rules:
     - if: "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(main|prod)$/ || $CI_COMMIT_BRANCH =~ /^(main|prod)$/"
+
+Terraform Checks:
+  stage: Test and Lint
+  script:
+    - cd infra/
+    - docker compose run --rm terraform -chdir=deploy/ init -backend=false
+    - docker compose run --rm terraform -chdir=setup/ init -backend=false
+    - docker compose run --rm terraform -chdir=setup/ validate
+    - docker compose run --rm terraform -chdir=setup/ fmt -check
+    - docker compose run --rm terraform -chdir=deploy/ validate
+    - docker compose run --rm terraform -chdir=deploy/ fmt -check
+  rules:
+    - if: "$CI_MERGE_REQUEST_TARGET_BRANCH_NAME =~ /^(main|prod)$/ || $CI_COMMIT_BRANCH =~ /^(main|prod)$/"
