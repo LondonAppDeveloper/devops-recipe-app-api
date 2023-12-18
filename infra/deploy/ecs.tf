@@ -176,9 +176,10 @@ resource "aws_security_group" "ecs_service" {
 
   # HTTP inbound access
   ingress {
-    from_port = 8000
-    to_port   = 8000
-    protocol  = "tcp"
+    from_port   = 8000
+    to_port     = 8000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
@@ -192,6 +193,8 @@ resource "aws_ecs_service" "api" {
   enable_execute_command = true
 
   network_configuration {
+    assign_public_ip = true
+
     subnets = [
       aws_subnet.public_a.id,
       aws_subnet.public_b.id
