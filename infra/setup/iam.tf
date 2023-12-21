@@ -308,7 +308,8 @@ data "aws_iam_policy_document" "elb" {
       "elasticloadbalancing:ModifyTargetGroupAttributes",
       "elasticloadbalancing:CreateTargetGroup",
       "elasticloadbalancing:AddTags",
-      "elasticloadbalancing:DescribeTags"
+      "elasticloadbalancing:DescribeTags",
+      "elasticloadbalancing:ModifyListener"
     ]
     resources = ["*"]
   }
