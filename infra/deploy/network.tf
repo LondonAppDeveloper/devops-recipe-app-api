@@ -152,7 +152,7 @@ resource "aws_vpc_endpoint" "ecr_dkr" {
   ]
 
   tags = {
-    Name = "${local.prefix}-ecr-dkr-endpoint"
+    Name = "${local.prefix}-dkr-endpoint"
   }
 }
 
@@ -186,7 +186,7 @@ resource "aws_vpc_endpoint" "ecr_ssm" {
   ]
 
   tags = {
-    Name = "${local.prefix}-ecr-ssmmessages-endpoint"
+    Name = "${local.prefix}-ssmmessages-endpoint"
   }
 }
 
