@@ -122,7 +122,7 @@ resource "aws_security_group" "endpoint_access" {
   }
 }
 
-resource "aws_vpc_endpoint" "ecr_api" {
+resource "aws_vpc_endpoint" "ecr" {
   vpc_id              = aws_vpc.main.id
   service_name        = "com.amazonaws.${data.aws_region.current.name}.ecr.api"
   vpc_endpoint_type   = "Interface"
@@ -139,7 +139,7 @@ resource "aws_vpc_endpoint" "ecr_api" {
   }
 }
 
-resource "aws_vpc_endpoint" "ecr_dkr" {
+resource "aws_vpc_endpoint" "dkr" {
   vpc_id              = aws_vpc.main.id
   service_name        = "com.amazonaws.${data.aws_region.current.name}.ecr.dkr"
   vpc_endpoint_type   = "Interface"
@@ -152,7 +152,7 @@ resource "aws_vpc_endpoint" "ecr_dkr" {
   ]
 
   tags = {
-    Name = "${local.prefix}-ecr-dkr-endpoint"
+    Name = "${local.prefix}-dkr-endpoint"
   }
 }
 
@@ -173,7 +173,7 @@ resource "aws_vpc_endpoint" "cloudwatch_logs" {
   }
 }
 
-resource "aws_vpc_endpoint" "ecr_ssm" {
+resource "aws_vpc_endpoint" "ssm" {
   vpc_id              = aws_vpc.main.id
   service_name        = "com.amazonaws.${data.aws_region.current.name}.ssmmessages"
   vpc_endpoint_type   = "Interface"
@@ -186,7 +186,7 @@ resource "aws_vpc_endpoint" "ecr_ssm" {
   ]
 
   tags = {
-    Name = "${local.prefix}-ecr-ssmmessages-endpoint"
+    Name = "${local.prefix}-ssmmessages-endpoint"
   }
 }
 
