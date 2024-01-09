@@ -79,7 +79,7 @@ docker compose run --rm terraform -chdir=setup output cd_user_access_key_secret
 
 This section lists the GitHub Actions variables which need to be configured on the GitHub project.
 
-> Note: This is only applicable if using GitHub Actions, if you're using GitLab, see [GitLab CI/CD Variables](#gitlab-ci-cd-variables) below.
+> Note: This is only applicable if using GitHub Actions, if you're using GitLab, see [GitLab CI/CD Variables](#gitlab-cicd-variables) below.
 
 If using GitHub Actions, variables are set as either **Variables** (clear text and readable) or **Secrets** (values hidden in logs).
 
