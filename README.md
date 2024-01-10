@@ -49,7 +49,9 @@ docker compose up
 
 This section contains supplementary documentation for the course steps.
 
-### AWS CLI Authentication
+### AWS CLI
+
+#### AWS CLI Authentication
 
 This course uses [aws-vault](https://github.com/99designs/aws-vault) to authenticate with the AWS CLI in the terminal.
 
@@ -66,6 +68,23 @@ To list profiles, run:
 ```
 aws-vault list
 ```
+
+#### Task Exec
+
+[ECS Exec](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html) is used for manually running commands directly on the running containers.
+
+To get shell access to the `ecs` task:
+
+```
+aws ecs execute-command --region REGION --cluster CLUSTER_NAME --task TASK_ID --container CONTAINER_NAME --interactive --command "/bin/sh"
+```
+
+Replace the following values in the above command:
+
+- `REGION`: The AWS region where the ECS cluster is setup.
+- `CLUSTER_NAME`: The name of the ECS cluster.
+- `TASK_ID`: The ID of the running ECS task which you want to connect to.
+- `CONTAINER_NAME`: The name of the container to run the command on.
 
 ### Terraform Commands
 
