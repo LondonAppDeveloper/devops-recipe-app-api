@@ -49,6 +49,24 @@ docker compose up
 
 This section contains supplementary documentation for the course steps.
 
+### AWS CLI Authentication
+
+This course uses [aws-vault](https://github.com/99designs/aws-vault) to authenticate with the AWS CLI in the terminal.
+
+To authenticate:
+
+```
+aws-vault exec PROFILE --duration=8h
+```
+
+Replace `PROFILE` with the name of the profile.
+
+To list profiles, run:
+
+```
+aws-vault list
+```
+
 ### Terraform Commands
 
 Below is a list of how to run the common commands via Docker Compose.
