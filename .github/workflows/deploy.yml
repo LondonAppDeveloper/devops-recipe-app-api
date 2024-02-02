@@ -20,7 +20,7 @@ jobs:
     needs: [test-lint]
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set vars
         run: |
           if [[ $GITHUB_REF == 'refs/heads/prod' ]]; then
