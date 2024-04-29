@@ -137,7 +137,7 @@ resource "aws_ecs_task_definition" "api" {
             containerPath = "/vol/media"
             sourceVolume  = "efs-media"
           }
-        ],
+        ]
         logConfiguration = {
           logDriver = "awslogs"
           options = {
