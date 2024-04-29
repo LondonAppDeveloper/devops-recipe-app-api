@@ -85,7 +85,7 @@ resource "aws_ecs_task_definition" "api" {
           {
             name  = "ALLOWED_HOSTS"
             value = aws_route53_record.app.fqdn
-          },
+          }
         ]
         mountPoints = [
           {
