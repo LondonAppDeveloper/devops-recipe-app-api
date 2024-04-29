@@ -110,8 +110,8 @@ resource "aws_subnet" "private_b" {
 #########################################################################
 
 resource "aws_security_group" "endpoint_access" {
-  description = "Access to ECR"
-  name        = "${local.prefix}-ecr-outbound"
+  description = "Access to endpoints"
+  name        = "${local.prefix}-endpoint-access"
   vpc_id      = aws_vpc.main.id
 
   ingress {
