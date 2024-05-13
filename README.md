@@ -155,6 +155,50 @@ Each variable and their state is listed below:
 - `TF_VAR_db_password` (**Masked**): Password for the RDS database (make something up).
 - `TF_VAR_django_secret_key` (**Masked**, **Protected**): Secret key for the Django app (make something up).
 
+## Section Notes and Resources
+
+### Software Requirements
+
+#### Checking Each Dependency
+
+Check docker is running:
+
+```sh
+docker --version
+```
+
+Check aws-vault installed:
+
+```sh
+aws-vault --version
+```
+
+Check AWS CLI:
+
+```sh
+aws --version
+```
+
+Check AWS CLI Systems Manager:
+
+```sh
+session-manager-plugin
+```
+
+Check docker compose:
+
+```sh
+docker compose --version
+```
+
+Configure Git:
+
+```sh
+git config --global user.email email@example.com
+git config --global user.name "User Name" 
+git config --global push.autoSetupRemote true
+```
+
 ## Other courses
 
 Check out our courses on [londonappdeveloper.com](https://londonappdeveloper.com).
