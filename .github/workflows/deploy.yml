@@ -26,17 +26,30 @@ jobs:
           if [[ $GITHUB_REF == 'refs/heads/prod' ]]; then
             echo "prod" > .workspace
           else
-          echo "staging" > .workspace
+            echo "staging" > .workspace
           fi
+      
+      # Updated Push to ECR step
       - name: Push to ECR
         env:
           AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
         run: |
+          # Add error handling
+          set -euo pipefail
+          
+          # Login to ECR
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
-          docker build --compress -t ${{ vars.ECR_REPO_APP }}:$GITHUB_SHA .
+          
+          # Build and scan app image
+          docker build --compress --no-cache -t ${{ vars.ECR_REPO_APP }}:$GITHUB_SHA .
+          docker scan ${{ vars.ECR_REPO_APP }}:$GITHUB_SHA
           docker push ${{ vars.ECR_REPO_APP }}:$GITHUB_SHA
-          docker build --compress -t ${{ vars.ECR_REPO_PROXY }}:$GITHUB_SHA proxy/
+          
+          # Build and scan proxy image
+          docker build --compress --no-cache -t ${{ vars.ECR_REPO_PROXY }}:$GITHUB_SHA proxy/
+          docker scan ${{ vars.ECR_REPO_PROXY }}:$GITHUB_SHA
           docker push ${{ vars.ECR_REPO_PROXY }}:$GITHUB_SHA
 
       - name: Terraform Apply
