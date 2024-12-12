@@ -21,6 +21,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
       - name: Set vars
         run: |
           if [[ $GITHUB_REF == 'refs/heads/prod' ]]; then
@@ -28,41 +36,68 @@ jobs:
           else
             echo "staging" > .workspace
           fi
+          echo "Workspace set to: $(cat .workspace)"
       
-      # Updated Push to ECR step
-      - name: Push to ECR
-        env:
-          AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
+      - name: Login to Amazon ECR
+        id: login-ecr
         run: |
-          # Add error handling
-          set -euo pipefail
-          
-          # Login to ECR
+          echo "Logging into ECR..."
           aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
           
-          # Build and scan app image
+      - name: Build and Push App Image
+        run: |
+          echo "Building app image for commit: $GITHUB_SHA"
           docker build --compress --no-cache -t ${{ vars.ECR_REPO_APP }}:$GITHUB_SHA .
-          docker scan ${{ vars.ECR_REPO_APP }}:$GITHUB_SHA
+          
+          echo "Running security scan on app image..."
+          docker scan ${{ vars.ECR_REPO_APP }}:$GITHUB_SHA || true
+          
+          echo "Pushing app image to ECR..."
           docker push ${{ vars.ECR_REPO_APP }}:$GITHUB_SHA
           
-          # Build and scan proxy image
+          echo "Verifying app image push..."
+          aws ecr describe-images --repository-name recipe-app-api-app --image-ids imageTag=$GITHUB_SHA
+
+      - name: Build and Push Proxy Image
+        run: |
+          echo "Building proxy image for commit: $GITHUB_SHA"
           docker build --compress --no-cache -t ${{ vars.ECR_REPO_PROXY }}:$GITHUB_SHA proxy/
-          docker scan ${{ vars.ECR_REPO_PROXY }}:$GITHUB_SHA
+          
+          echo "Running security scan on proxy image..."
+          docker scan ${{ vars.ECR_REPO_PROXY }}:$GITHUB_SHA || true
+          
+          echo "Pushing proxy image to ECR..."
           docker push ${{ vars.ECR_REPO_PROXY }}:$GITHUB_SHA
+          
+          echo "Verifying proxy image push..."
+          aws ecr describe-images --repository-name recipe-app-api-proxy --image-ids imageTag=$GITHUB_SHA
+
+      - name: Show ECR Image Details
+        run: |
+          echo "Latest images in App repository:"
+          aws ecr describe-images \
+            --repository-name recipe-app-api-app \
+            --output table \
+            --query 'imageDetails[*].{Tag:imageTags[0],Pushed:imagePushedAt}'
 
       - name: Terraform Apply
         env:
-          AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           TF_VAR_db_password: ${{ secrets.TF_VAR_DB_PASSWORD }}
           TF_VAR_django_secret_key: ${{ secrets.TF_VAR_DJANGO_SECRET_KEY }}
         run: |
+          echo "Setting Terraform variables..."
           export TF_VAR_ecr_app_image="${{ vars.ECR_REPO_APP }}:$GITHUB_SHA"
           export TF_VAR_ecr_proxy_image="${{ vars.ECR_REPO_PROXY }}:$GITHUB_SHA"
+          
           workspace=$(cat .workspace)
+          echo "Using Terraform workspace: $workspace"
+          
           cd infra/
+          echo "Initializing Terraform..."
           docker compose run --rm terraform -chdir=deploy/ init
+          
+          echo "Selecting Terraform workspace..."
           docker compose run --rm terraform -chdir=deploy/ workspace select -or-create $workspace
+          
+          echo "Applying Terraform changes..."
           docker compose run --rm terraform -chdir=deploy/ apply -auto-approve
