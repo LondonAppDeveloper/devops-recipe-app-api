@@ -158,6 +158,7 @@ data "aws_iam_policy_document" "rds" {
   statement {
     effect = "Allow"
     actions = [
+      "rds:AddTagsToResource",
       "rds:DescribeDBSubnetGroups",
       "rds:DescribeDBInstances",
       "rds:CreateDBSubnetGroup",
@@ -241,7 +242,10 @@ data "aws_iam_policy_document" "iam" {
       "iam:AttachRolePolicy",
       "iam:TagRole",
       "iam:TagPolicy",
-      "iam:PassRole"
+      "iam:PassRole",
+      "iam:CreateServiceLinkedRole",
+      "iam:DeleteServiceLinkedRole",
+      "iam:GetServiceLinkedRoleDeletionStatus"
     ]
     resources = ["*"]
   }
